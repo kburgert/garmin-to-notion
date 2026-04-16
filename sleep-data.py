@@ -1,5 +1,6 @@
+import time
 from datetime import datetime
-from garminconnect import Garmin
+from garminconnect import Garmin, GarminConnectTooManyRequestsError
 from notion_client import Client
 from dotenv import load_dotenv, dotenv_values
 import pytz
@@ -11,6 +12,30 @@ local_tz = pytz.timezone("America/New_York")
 # Load environment variables
 load_dotenv()
 CONFIG = dotenv_values()
+
+_GARTH_DIR = "/tmp/garth_tokens"
+_RETRY_DELAYS = [60, 120, 240]
+
+
+def login_garmin(email: str, password: str) -> Garmin:
+    """Login to Garmin Connect, reusing cached tokens when available.
+
+    Falls back to username/password login and retries with exponential backoff
+    on rate limit errors.
+    """
+    client = Garmin(email, password, garth_dir=_GARTH_DIR)
+    last_exc = None
+    for delay in [0] + _RETRY_DELAYS:
+        if delay:
+            print(f"Rate limited by Garmin. Waiting {delay}s before retry...")
+            time.sleep(delay)
+        try:
+            client.login()
+            return client
+        except GarminConnectTooManyRequestsError as exc:
+            last_exc = exc
+    raise last_exc
+
 
 def get_sleep_data(garmin):
     today = datetime.today().date()
@@ -89,8 +114,7 @@ def main():
     database_id = os.getenv("NOTION_SLEEP_DB_ID")
 
     # Initialize Garmin client and login
-    garmin = Garmin(garmin_email, garmin_password)
-    garmin.login()
+    garmin = login_garmin(garmin_email, garmin_password)
     client = Client(auth=notion_token)
 
     data = get_sleep_data(garmin)
