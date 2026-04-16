@@ -4,6 +4,7 @@ from datetime import datetime, UTC, timedelta
 import pytz
 from dotenv import load_dotenv
 from garmin_client import get_garmin_client
+from garminconnect import Garmin
 from notion_client import Client as NotionClient
 
 # Your local time zone, replace with the appropriate one if needed
@@ -32,7 +33,7 @@ ACTIVITY_ICONS = {
 }
 
 
-def get_all_activities(garmin_client: GarminClient, limit: int = 1000) -> list[dict]:
+def get_all_activities(garmin_client: Garmin, limit: int = 1000) -> list[dict]:
     return garmin_client.get_activities(0, limit)
 
 
