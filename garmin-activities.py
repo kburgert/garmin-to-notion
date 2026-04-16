@@ -1,11 +1,12 @@
 import os
-import time
 from datetime import datetime, UTC, timedelta
 
 import pytz
 from dotenv import load_dotenv
-from garminconnect import Garmin as GarminClient, GarminConnectTooManyRequestsError
+from garminconnect import Garmin as GarminClient
 from notion_client import Client as NotionClient
+
+from garmin_utils import login_garmin
 
 # Your local time zone, replace with the appropriate one if needed
 local_tz = pytz.timezone('America/Toronto')
@@ -31,30 +32,6 @@ ACTIVITY_ICONS = {
     "Yoga": "https://img.icons8.com/?size=100&id=9783&format=png&color=000000",
     # Add more mappings as needed
 }
-
-
-_GARTH_DIR = "/tmp/garth_tokens"
-_RETRY_DELAYS = [60, 120, 240]
-
-
-def login_garmin(email: str, password: str) -> GarminClient:
-    """Login to Garmin Connect, reusing cached tokens when available.
-
-    Falls back to username/password login and retries with exponential backoff
-    on rate limit errors.
-    """
-    client = GarminClient(email, password, garth_dir=_GARTH_DIR)
-    last_exc = None
-    for delay in [0] + _RETRY_DELAYS:
-        if delay:
-            print(f"Rate limited by Garmin. Waiting {delay}s before retry...")
-            time.sleep(delay)
-        try:
-            client.login()
-            return client
-        except GarminConnectTooManyRequestsError as exc:
-            last_exc = exc
-    raise last_exc
 
 
 def get_all_activities(garmin_client: GarminClient, limit: int = 1000) -> list[dict]:

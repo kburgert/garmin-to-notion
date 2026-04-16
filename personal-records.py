@@ -1,31 +1,9 @@
-import time
 from datetime import date, datetime
-from garminconnect import Garmin, GarminConnectTooManyRequestsError
+from garminconnect import Garmin
 from notion_client import Client
 import os
 
-_GARTH_DIR = "/tmp/garth_tokens"
-_RETRY_DELAYS = [60, 120, 240]
-
-
-def login_garmin(email: str, password: str) -> Garmin:
-    """Login to Garmin Connect, reusing cached tokens when available.
-
-    Falls back to username/password login and retries with exponential backoff
-    on rate limit errors.
-    """
-    client = Garmin(email, password, garth_dir=_GARTH_DIR)
-    last_exc = None
-    for delay in [0] + _RETRY_DELAYS:
-        if delay:
-            print(f"Rate limited by Garmin. Waiting {delay}s before retry...")
-            time.sleep(delay)
-        try:
-            client.login()
-            return client
-        except GarminConnectTooManyRequestsError as exc:
-            last_exc = exc
-    raise last_exc
+from garmin_utils import login_garmin
 
 
 def get_icon_for_record(activity_name):
