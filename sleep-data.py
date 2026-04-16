@@ -5,7 +5,7 @@ from dotenv import load_dotenv, dotenv_values
 import pytz
 import os
 
-from garmin_utils import login_garmin
+from garmin_client import get_garmin_client
 
 # Constants
 local_tz = pytz.timezone("America/New_York")
@@ -86,13 +86,11 @@ def main():
     load_dotenv()
 
     # Initialize Garmin and Notion clients using environment variables
-    garmin_email = os.getenv("GARMIN_EMAIL")
-    garmin_password = os.getenv("GARMIN_PASSWORD")
     notion_token = os.getenv("NOTION_TOKEN")
     database_id = os.getenv("NOTION_SLEEP_DB_ID")
 
     # Initialize Garmin client and login
-    garmin = login_garmin(garmin_email, garmin_password)
+    garmin = get_garmin_client()
     client = Client(auth=notion_token)
 
     data = get_sleep_data(garmin)
