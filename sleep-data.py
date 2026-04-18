@@ -4,12 +4,15 @@ from dotenv import load_dotenv, dotenv_values
 import pytz
 import os
 
+from garmin_client import get_garmin_client
+
 # Constants
 local_tz = pytz.timezone("America/New_York")
 
 # Load environment variables
 load_dotenv()
 CONFIG = dotenv_values()
+
 
 def get_sleep_data(garmin):
     today = datetime.today().date()
@@ -86,7 +89,6 @@ def main():
     database_id = os.getenv("NOTION_SLEEP_DB_ID")
 
     # Initialize Garmin client using shared helper (handles token reuse + retries)
-    from garmin_client import get_garmin_client
     garmin = get_garmin_client()
     client = Client(auth=notion_token)
 

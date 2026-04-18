@@ -19,6 +19,14 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      - name: Cache Garmin auth tokens
+        uses: actions/cache@v4
+        with:
+          path: ~/.garminconnect
+          key: garmin-tokens-${{ github.run_id }}
+          restore-keys: |
+            garmin-tokens-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
