@@ -2,11 +2,11 @@ import os
 import time
 from pathlib import Path
 
-from garth.exc import GarthHTTPError
 from garminconnect import (
     Garmin,
     GarminConnectAuthenticationError,
     GarminConnectConnectionError,
+    GarminConnectTooManyRequestsError,
 )
 
 _cached_client = None
@@ -35,7 +35,6 @@ def get_garmin_client() -> Garmin:
         return garmin
     except (
         FileNotFoundError,
-        GarthHTTPError,
         GarminConnectAuthenticationError,
         GarminConnectConnectionError,
     ):
@@ -51,11 +50,17 @@ def get_garmin_client() -> Garmin:
     for attempt in range(max_retries):
         try:
             garmin = Garmin(email=email, password=password)
-            garmin.login()
-            garmin.garth.dump(tokenstore_path)
+            garmin.login(tokenstore_path)
             _cached_client = garmin
             return garmin
-        except (GarminConnectConnectionError, GarthHTTPError) as e:
+        except GarminConnectTooManyRequestsError as e:
+            if attempt < max_retries - 1:
+                delay = delays[attempt]
+                print(f"Rate limited (429), retrying in {delay}s... (attempt {attempt + 1}/{max_retries})")
+                time.sleep(delay)
+            else:
+                raise
+        except (GarminConnectConnectionError, GarminConnectAuthenticationError) as e:
             if "429" in str(e) and attempt < max_retries - 1:
                 delay = delays[attempt]
                 print(f"Rate limited (429), retrying in {delay}s... (attempt {attempt + 1}/{max_retries})")
