@@ -11,19 +11,6 @@ from garminconnect import (
 
 _cached_client = None
 
-# Garmin's Cloudflare blocks garth's default mobile User-Agent (GCM-iOS-5.7.2.1).
-# Override with a browser User-Agent to bypass this.
-# See: https://github.com/matin/garth/discussions/222
-_BROWSER_USER_AGENT = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/131.0.0.0 Safari/537.36"
-)
-
-
-def _set_browser_user_agent(garmin: Garmin) -> None:
-    garmin.garth.sess.headers["User-Agent"] = _BROWSER_USER_AGENT
-
 
 def get_garmin_client() -> Garmin:
     """Return a logged-in Garmin client, reusing saved tokens when available.
@@ -43,7 +30,6 @@ def get_garmin_client() -> Garmin:
     # Try loading saved tokens first (no re-authentication needed)
     try:
         garmin = Garmin()
-        _set_browser_user_agent(garmin)
         garmin.login(tokenstore_path)
         _cached_client = garmin
         return garmin
@@ -64,7 +50,6 @@ def get_garmin_client() -> Garmin:
     for attempt in range(max_retries):
         try:
             garmin = Garmin(email=email, password=password)
-            _set_browser_user_agent(garmin)
             garmin.login(tokenstore_path)
             _cached_client = garmin
             return garmin
