@@ -1,7 +1,0 @@
-garminconnect>=0.3.3
-notion-client==2.7.0
-pytz==2024.1
-datetime==5.5
-lxml>=5.0
-
-python-dotenv

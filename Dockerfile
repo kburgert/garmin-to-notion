@@ -1,11 +1,13 @@
 FROM python:3.14-slim
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --no-dev --no-install-project
 
 COPY *.py .
 COPY .example.env .
 
-CMD ["python", "sync.py"]
+CMD ["uv", "run", "python", "sync.py"]
