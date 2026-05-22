@@ -22,7 +22,7 @@ python daily_steps.py          # Sync yesterday's steps to NOTION_STEPS_DB_ID
 python sleep-data.py           # Sync last night's sleep to NOTION_SLEEP_DB_ID
 ```
 
-No build step, no test framework, no linter configured. Python 3.11.
+No build step, no test framework, no linter configured. Python 3.14.
 
 ## Environment Variables
 
@@ -54,6 +54,6 @@ Each script targets a separate Notion database and is self-contained with its ow
 
 ## Key Dependencies
 
-- `garminconnect` — Garmin Connect API wrapper (pinned >=0.2.19,<0.3)
-- `notion-client` — Official Notion SDK (==2.2.1)
+- `garminconnect` — Garmin Connect API wrapper (>=0.3.3)
+- `notion-client` — Official Notion SDK (==2.7.0)
 - `python-dotenv` — Local .env loading
