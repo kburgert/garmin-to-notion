@@ -1,0 +1,20 @@
+[project]
+name = "garmin-to-notion"
+version = "0.1.0"
+description = "Sync Garmin Connect data to Notion databases"
+requires-python = ">=3.12"
+dependencies = [
+    "garminconnect>=0.3.3",
+    "notion-client==2.7.0",
+    "pytz==2024.1",
+    "datetime==5.5",
+    "lxml>=5.0",
+    "python-dotenv",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["sync", "garmin_activities", "personal_records", "daily_steps", "sleep-data", "garmin_client"]

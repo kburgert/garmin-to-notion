@@ -9,20 +9,23 @@ Syncs Garmin Connect data (activities, personal records, daily steps, sleep) to 
 ## Commands
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (requires uv: https://docs.astral.sh/uv/)
+uv sync
+
+# Or with pip
+pip install .
 
 # Run all syncs via the consolidated entry point (requires .env with credentials)
-python sync.py
+uv run python sync.py
 
 # Or run individual scripts
-python garmin_activities.py    # Sync activities to NOTION_DB_ID
-python personal_records.py     # Sync PRs to NOTION_PR_DB_ID
-python daily_steps.py          # Sync yesterday's steps to NOTION_STEPS_DB_ID
-python sleep-data.py           # Sync last night's sleep to NOTION_SLEEP_DB_ID
+uv run python garmin_activities.py    # Sync activities to NOTION_DB_ID
+uv run python personal_records.py     # Sync PRs to NOTION_PR_DB_ID
+uv run python daily_steps.py          # Sync yesterday's steps to NOTION_STEPS_DB_ID
+uv run python sleep-data.py           # Sync last night's sleep to NOTION_SLEEP_DB_ID
 ```
 
-No build step, no test framework, no linter configured. Python 3.14.
+Dependencies are declared in `pyproject.toml`. Requires Python >=3.12 (3.14 in CI). No test framework, no linter configured.
 
 ## Environment Variables
 
@@ -50,7 +53,8 @@ Each script targets a separate Notion database and is self-contained with its ow
 
 ## GitHub Actions
 
-`.github/workflows/sync_garmin_to_notion.yml` runs daily at 1 AM UTC (`cron: '0 1 * * *'`). It executes `sync.py`, which calls `garmin_activities.py`, `personal_records.py`, and `daily_steps.py` in sequence (not sleep-data.py since commit 032a6ba).
+- `.github/workflows/ci.yml` — Runs on PRs to `main`. Validates that dependencies install and imports succeed.
+- `.github/workflows/sync_garmin_to_notion.yml` — Runs daily at 1 AM UTC (`cron: '0 1 * * *'`) and on demand. Executes `sync.py`, which calls `garmin_activities.py`, `personal_records.py`, and `daily_steps.py` in sequence (not sleep-data.py since commit 032a6ba).
 
 ## Key Dependencies
 
